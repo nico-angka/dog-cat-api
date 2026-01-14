@@ -76,11 +76,47 @@ See [.env.example](.env.example) for all options.
 
 ```bash
 npm run dev          # Start with hot reload
-npm test             # Run tests (192 tests)
-npm run test:coverage # Coverage report
+npm test             # Run tests
+npm run test:coverage # Coverage report (~88%)
 npm run lint         # ESLint
 npm run build        # Build for production
 ```
+
+## Testing
+
+### Test Results
+
+| Test Suite | Tests | Description |
+|------------|-------|-------------|
+| `jsonReplacer.test.ts` | 74 | Core replacement logic, edge cases, word boundaries |
+| `config.test.ts` | 19 | Environment variable parsing, defaults, validation |
+| `api.test.ts` | 61 | HTTP endpoints, request/response flow, query params |
+| `security.test.ts` | 38 | Rate limiting, DoS protection, prototype pollution |
+| **Total** | **192** | **~88% code coverage** |
+
+### What's Tested
+
+**Unit Tests** (`tests/unit/`)
+- String replacement with word boundaries
+- Nested object/array traversal
+- Type preservation (numbers, booleans, null)
+- Replacement limit behavior
+- Depth limit protection
+- Prototype pollution prevention
+
+**Integration Tests** (`tests/integration/`)
+- All HTTP endpoints (POST /replace, GET /health, /ready, /metrics)
+- Content-Type validation (415 errors)
+- Invalid JSON handling (400 errors)
+- Query param limit override
+- Request correlation IDs
+- Error response format
+
+**Security Tests**
+- Rate limiting enforcement
+- Large payload rejection
+- Deep nesting rejection
+- Malicious key filtering (`__proto__`, `constructor`)
 
 ## Docker
 
