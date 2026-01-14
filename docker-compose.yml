@@ -1,0 +1,103 @@
+# =============================================================================
+# Docker Compose Configuration
+# =============================================================================
+# This file defines the services, networks, and volumes for the application.
+# Use: docker-compose up -d to start in detached mode
+
+version: "3.8"
+
+services:
+  # ===========================================================================
+  # Dog-Cat API Service
+  # ===========================================================================
+  api:
+    # Build from local Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Container name for easier identification
+    container_name: dog-cat-api
+
+    # Port mapping: host:container
+    ports:
+      - "${PORT:-3000}:3000"
+
+    # Environment variables
+    # Values from .env file take precedence, with defaults provided
+    environment:
+      # Runtime environment
+      - NODE_ENV=${NODE_ENV:-production}
+
+      # Server configuration
+      - PORT=3000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+
+      # Application settings
+      - MAX_REPLACEMENTS=${MAX_REPLACEMENTS:-100}
+      - MAX_DEPTH=${MAX_DEPTH:-100}
+
+      # Security settings
+      - BODY_LIMIT=${BODY_LIMIT:-10485760}
+      - CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30000}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+
+      # Graceful shutdown
+      - SHUTDOWN_TIMEOUT=${SHUTDOWN_TIMEOUT:-30000}
+
+    # Health check configuration
+    # Docker will monitor container health and restart if unhealthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Restart policy
+    # unless-stopped: Restart automatically unless explicitly stopped
+    restart: unless-stopped
+
+    # Resource limits
+    # Prevents container from consuming excessive resources
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+    # Read-only root filesystem for additional security
+    # Application can still write to /tmp if needed
+    read_only: true
+    tmpfs:
+      - /tmp
+
+# =============================================================================
+# Networks (optional, using default bridge network)
+# =============================================================================
+# networks:
+#   app-network:
+#     driver: bridge
+
+# =============================================================================
+# Volumes (optional, for persistent data)
+# =============================================================================
+# volumes:
+#   app-logs:
+#     driver: local
