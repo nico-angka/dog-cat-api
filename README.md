@@ -80,6 +80,7 @@ npm test             # Run tests
 npm run test:coverage # Coverage report (~88%)
 npm run lint         # ESLint
 npm run build        # Build for production
+npm run loadtest     # Run load tests (requires server running)
 ```
 
 ## Testing
@@ -118,6 +119,23 @@ npm run build        # Build for production
 - Deep nesting rejection
 - Malicious key filtering (`__proto__`, `constructor`)
 
+### Load Testing
+
+Stress test to verify the API can handle heavy traffic:
+
+```bash
+npm run dev          # Terminal 1
+npm run loadtest     # Terminal 2
+```
+
+**Results (M1 MacBook Pro):**
+
+| Scenario | Req/sec | Latency (p99) | Errors |
+|----------|---------|---------------|--------|
+| Small payload | 11,061 | 22ms | 0 |
+| Medium payload | 12,365 | 16ms | 0 |
+| Health check | 6,734 | 26ms | 0 |
+
 ## Docker
 
 ```bash
@@ -148,7 +166,6 @@ docker-compose up
 
 ## Documentation
 
-- [Interview Notes](INTERVIEW_NOTES.md) - Design decisions summary
 - [Full Documentation](docs/FULL_DOCUMENTATION.md) - Comprehensive docs
 - [API Reference](docs/API.md) - Complete API details
 

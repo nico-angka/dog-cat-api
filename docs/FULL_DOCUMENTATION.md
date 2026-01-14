@@ -80,6 +80,9 @@ npm run build
 
 # Start production server
 npm start
+
+# Run load tests (requires server running)
+npm run loadtest
 ```
 
 ### Using Make
@@ -417,6 +420,7 @@ All error responses include a `requestId` for correlation with server logs.
 | **Unit tests** | Core replacement logic, edge cases | `tests/unit/` |
 | **Integration tests** | Full HTTP request/response flow | `tests/integration/` |
 | **Security tests** | DoS protection, rate limiting, injection | `tests/integration/security.test.ts` |
+| **Load tests** | High traffic handling, throughput | `scripts/loadtest.ts` |
 
 **Coverage Target:** >85% (current: ~88%)
 
@@ -434,6 +438,27 @@ npm run test:coverage     # Generate coverage report
 - **Approach**: Recursive JSON traversal with early termination
 - **Complexity**: O(n) where n = total nodes in JSON tree
 - **Memory**: Proportional to input size (creates modified copy)
+
+### Load Test Results
+
+Run load tests with:
+```bash
+npm run dev          # Terminal 1
+npm run loadtest     # Terminal 2
+```
+
+**Results (M1 MacBook Pro):**
+
+| Scenario | Req/sec | Latency (avg) | Latency (p99) | Errors |
+|----------|---------|---------------|---------------|--------|
+| Small payload (simple object) | 11,061 | 8.52ms | 22ms | 0 |
+| Medium payload (nested object) | 12,365 | 7.57ms | 16ms | 0 |
+| Health check endpoint | 6,734 | 14.34ms | 26ms | 0 |
+
+**Pass Criteria:**
+- Throughput: >1,000 req/sec ✓
+- Latency (p99): <100ms ✓
+- Error rate: <1% ✓
 
 ### Alternative Approach Considered
 
@@ -475,6 +500,7 @@ dog-cat-api/
 │   ├── ARCHITECTURE.md       # Detailed architecture documentation
 │   └── API.md                # Complete API reference
 ├── scripts/
+│   ├── loadtest.ts           # Load testing with autocannon
 │   └── wait-for-it.sh        # Service readiness script
 ├── .github/
 │   └── workflows/
